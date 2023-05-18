@@ -4,15 +4,15 @@ require("dotenv").config();
 const schedule = require('node-schedule');
 const axios = require('axios');
 
-// - If app is installed, have it run on a schedule based on previous selection
+// G - If app is installed, have it run on a schedule based on previous selection
 //   - 8am, 12pm, 5pm. 
 // If app is running reguarly, need to consume the first team name which is your team.
-// Update for other game states.
+// G Update for other game states.
 // Add the ability to add custom emojis that the app can learn and remember.
 // Could add new bot questions that allow for emoji to be added.
 // Set expiration on status. ? 
 // - Change to select menu
-// - Deployt to production 
+// - Deploy to production 
 // - Create documentation for others to use. 
 // - Deploy on portfolio
 // - Somehow make it so you can run this locally and it will still work w/o bot.
@@ -24,11 +24,47 @@ const axios = require('axios');
 // Event Subscriptions
 // Select Menus? 
 
+const teamNames = [
+  'Arizona Diamondbacks',
+  'Atlanta Braves',
+  'Baltimore Orioles',
+  'Boston Red Sox',
+  'Chicago Cubs',
+  'Chicago White Sox',
+  'Cincinnati Reds',
+  'Cleveland Guardians',
+  'Colorado Rockies',
+  'Detroit Tigers',
+  'Houston Astros',
+  'Kansas City Royals',
+  'Los Angeles Angels',
+  'Los Angeles Dodgers',
+  'Miami Marlins',
+  'Milwaukee Brewers',
+  'Minnesota Twins',
+  'New York Mets',
+  'New York Yankees',
+  'Oakland Athletics',
+  'Philadelphia Phillies',
+  'Pittsburgh Pirates',
+  'San Diego Padres',
+  'San Francisco Giants',
+  'Seattle Mariners',
+  'St. Louis Cardinals',
+  'Tampa Bay Rays',
+  'Texas Rangers',
+  'Toronto Blue Jays',
+  'Washington Nationals'
+];
 
-schedule.scheduleJob('0 9 * * *', async function () {
+
+schedule.scheduleJob('0 9,22 * * *', async function () {
   console.log('The answer to life, the universe, and everything!');
   try {
-    await retrieveMLBGame('New York Mets');
+    const userProfile = await web.users.profile.get();
+    const userStatus = userProfile.profile.status_text;
+    const firstTeam = teamNames.find(team => userStatus.includes(team));
+    await retrieveMLBGame(firstTeam);
   } catch (error) {
     console.log("Unable to set timed status.");
     console.error(error);
@@ -41,21 +77,260 @@ const app = new App({
   signingSecret: process.env.SLACK_SIGNING_SECRET,
 });
 
-app.command("/mlb", async ({ command, ack, say }) => {
+app.command("/history", async ({ command, ack, say }) => {
   try {
     // Acknowledge the slash command request
     await ack();
 
-    const history = await app.client.conversations.history({
-      channel: command.channel_id,
-    });
 
-    console.log(history.messages[0].attachments[0].actions);
+    console.log('firstTeam', firstTeam);
+  }
+
+  catch (error) {
+    console.error('error', error);
+  }
+});
+
+app.command("/mlb", async ({ text, command, ack, say }) => {
+  try {
+    // Acknowledge the slash command request
+    await ack();
+
+    const postResult = await say({
+      blocks: [
+        {
+          type: "section",
+          text: {
+            type: "mrkdwn",
+            text: "Pick a team for your status"
+          },
+          accessory: {
+            type: "static_select",
+            placeholder: {
+              type: "plain_text",
+              text: "Select a game",
+            },
+            action_id: "baseball_dropdown",
+            options: [
+              {
+                text: {
+                  type: "plain_text",
+                  text: "Arizona Diamondbacks",
+                },
+                value: "Arizona Diamondbacks"
+              },
+              {
+                text: {
+                  type: "plain_text",
+                  text: "Atlanta Braves",
+                },
+                value: "Atlanta Braves"
+              },
+              {
+                text: {
+                  type: "plain_text",
+                  text: "Baltimore Orioles",
+                },
+                value: "Baltimore Orioles"
+              },
+              {
+                text: {
+                  type: "plain_text",
+                  text: "Boston Red Sox",
+                },
+                value: "Boston Red Sox"
+              },
+              {
+                text: {
+                  type: "plain_text",
+                  text: "Chicago Cubs",
+                },
+                value: "Chicago Cubs"
+              },
+              {
+                text: {
+                  type: "plain_text",
+                  text: "Chicago White Sox",
+                },
+                value: "Chicago White Sox"
+              },
+              {
+                text: {
+                  type: "plain_text",
+                  text: "Cincinnati Reds",
+                },
+                value: "Cincinnati Reds"
+              },
+              {
+                text: {
+                  type: "plain_text",
+                  text: "Cleveland Guardians",
+                },
+                value: "Cleveland Guardians"
+              },
+              {
+                text: {
+                  type: "plain_text",
+                  text: "Colorado Rockies",
+                },
+                value: "Colorado Rockies"
+              },
+              {
+                text: {
+                  type: "plain_text",
+                  text: "Detroit Tigers",
+                },
+                value: "Detroit Tigers"
+              },
+              {
+                text: {
+                  type: "plain_text",
+                  text: "Houston Astros",
+                },
+                value: "Houston Astros"
+              },
+              {
+                text: {
+                  type: "plain_text",
+                  text: "Kansas City Royals",
+                },
+                value: "Kansas City Royals"
+              },
+              {
+                text: {
+                  type: "plain_text",
+                  text: "Los Angeles Angels",
+                },
+                value: "Los Angeles Angels"
+              },
+              {
+                text: {
+                  type: "plain_text",
+                  text: "Los Angeles Dodgers",
+                },
+                value: "Los Angeles Dodgers"
+              },
+              {
+                text: {
+                  type: "plain_text",
+                  text: "Miami Marlins",
+                },
+                value: "Miami Marlins"
+              },
+              {
+                text: {
+                  type: "plain_text",
+                  text: "Milwaukee Brewers",
+                },
+                value: "Milwaukee Brewers"
+              },
+              {
+                text: {
+                  type: "plain_text",
+                  text: "Minnesota Twins",
+                },
+                value: "Minnesota Twins"
+              },
+              {
+                text: {
+                  type: "plain_text",
+                  text: "New York Mets",
+                },
+                value: "New York Mets"
+              },
+              {
+                text: {
+                  type: "plain_text",
+                  text: "New York Yankees",
+                },
+                value: "New York Yankees"
+              },
+              {
+                text: {
+                  type: "plain_text",
+                  text: "Oakland Athletics",
+                },
+                value: "Oakland Athletics"
+              },
+              {
+                text: {
+                  type: "plain_text",
+                  text: "Philadelphia Phillies",
+                },
+                value: "Philadelphia Phillies"
+              },
+              {
+                text: {
+                  type: "plain_text",
+                  text: "Pittsburgh Pirates",
+                },
+                value: "Pittsburgh Pirates"
+              },
+              {
+                text: {
+                  type: "plain_text",
+                  text: "San Diego Padres",
+                },
+                value: "San Diego Padres"
+              },
+              {
+                text: {
+                  type: "plain_text",
+                  text: "San Francisco Giants",
+                },
+                value: "San Francisco Giants"
+              },
+              {
+                text: {
+                  type: "plain_text",
+                  text: "Seattle Mariners",
+                },
+                value: "Seattle Mariners"
+              },
+              {
+                text: {
+                  type: "plain_text",
+                  text: "St. Louis Cardinals",
+                },
+                value: "St. Louis Cardinals"
+              },
+              {
+                text: {
+                  type: "plain_text",
+                  text: "Tampa Bay Rays",
+                },
+                value: "Tampa Bay Rays"
+              },
+              {
+                text: {
+                  type: "plain_text",
+                  text: "Texas Rangers",
+                },
+                value: "Texas Rangers"
+              },
+              {
+                text: {
+                  type: "plain_text",
+                  text: "Toronto Blue Jays",
+                },
+                value: "Toronto Blue Jays"
+              },
+              {
+                text: {
+                  type: "plain_text",
+                  text: "Washington Nationals",
+                },
+                value: "Washington Nationals"
+              }
+            ]
+          }
+        }
+      ]
+    });
   } catch (error) {
     console.error(error);
   }
 });
-
 
 app.action({ callback_id: 'baseball_selection' }, async ({ action, ack, say }) => {
   console.log({ action });
@@ -63,6 +338,19 @@ app.action({ callback_id: 'baseball_selection' }, async ({ action, ack, say }) =
     await ack();
 
     retrieveMLBGame(action.value);
+
+  } catch (error) {
+    console.error(error);
+  }
+});
+
+
+app.action('baseball_dropdown', async ({ payload, action, ack, say }) => {
+  console.log({ payload });
+  try {
+    await ack();
+
+    retrieveMLBGame(payload.selected_option.value);
 
   } catch (error) {
     console.error(error);
@@ -95,7 +383,7 @@ async function retrieveMLBGame(team) {
 
 async function setUserStatus(game, team) {
   let chosenTeamData;
-  let opponenTeamData;
+  let opponentTeamData;
   let atOrVsSymbol;
 
   if (game.teams.away.team.name === team) {
@@ -161,7 +449,8 @@ async function sendStatusToSlack(message) {
     await web.users.profile.set({
       profile: JSON.stringify({
         status_text: message,
-        status_emoji: ':baseball:'
+        status_emoji: ':baseball:',
+        status_expiration: (Date.now() / 1000) + 60 * 60 * 24,
       })
     })
   } catch (error) {
@@ -176,52 +465,6 @@ app.command("/help", async ({ command, ack, say, body, client }) => {
     // Acknowledge the slash command request
     await ack();
 
-    // Send a message with a button element
-    // const postResult = await say({
-    //   blocks: [
-    //     {
-    //       type: "section",
-    //       text: {
-    //         type: "mrkdwn",
-    //         text: "Pick a game to watch"
-    //       },
-    //       accessory: {
-    //         type: "static_select",
-    //         placeholder: {
-    //           type: "plain_text",
-    //           text: "Select a game",
-    //           emoji: true
-    //         },
-    //         options: [
-    //           {
-    //             text: {
-    //               type: "plain_text",
-    //               text: "New York Mets vs. Philadelphia Phillies",
-    //               emoji: true
-    //             },
-    //             value: "value-0"
-    //           },
-    //           {
-    //             text: {
-    //               type: "plain_text",
-    //               text: "Miami Marlins vs. Atlanta Braves",
-    //               emoji: true
-    //             },
-    //             value: "value-1"
-    //           },
-    //           {
-    //             text: {
-    //               type: "plain_text",
-    //               text: "Washington Nationals vs. New York Yankees",
-    //               emoji: true
-    //             },
-    //             value: "value-2"
-    //           }
-    //         ]
-    //       }
-    //     }
-    //   ]
-    // });
     const postResult = await client.chat.postMessage({
       channel: body.channel_id,
       text: 'Click the button to continue:',
